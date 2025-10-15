@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 import '../models/movie_model.dart';
 import '../widgets/tag.dart';
 import '../widgets/trailer_button.dart';
@@ -8,7 +10,6 @@ class MovieDetailsScreen extends StatelessWidget {
 
   const MovieDetailsScreen({super.key, required this.movie});
 
-  // Función auxiliar para convertir códigos de género en nombres
   String _getGenres(List<int> genreIds) {
     const genreMap = {
       28: 'Action',
@@ -47,12 +48,19 @@ class MovieDetailsScreen extends StatelessWidget {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Imagen de fondo
+          // Imagen de fondo con CachedNetworkImage
           Positioned.fill(
-            child: Image.network(
-              movie.posterPath,
+            child: CachedNetworkImage(
+              imageUrl: movie.posterPath,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
+              placeholder: (context, url) => Shimmer.fromColors(
+                baseColor: const Color(0xFF1E1E1E),
+                highlightColor: const Color(0xFF2A2A2A),
+                child: Container(
+                  color: const Color(0xFF2A2A2A),
+                ),
+              ),
+              errorWidget: (context, url, error) => Container(
                 color: Colors.grey[800],
                 child: const Icon(
                   Icons.broken_image,
@@ -90,7 +98,6 @@ class MovieDetailsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Indicador de arrastre
                       Center(
                         child: Container(
                           width: 40,
@@ -102,8 +109,6 @@ class MovieDetailsScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-
-                      // Título y metadata
                       Column(
                         children: [
                           Text(
@@ -117,8 +122,6 @@ class MovieDetailsScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 12),
-
-                          // Tags en una sola fila
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -150,8 +153,6 @@ class MovieDetailsScreen extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 16),
-
-                          // Géneros
                           Text(
                             genres,
                             style: const TextStyle(
@@ -163,10 +164,7 @@ class MovieDetailsScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 20),
-
-                      // Botón y descripción
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -176,7 +174,6 @@ class MovieDetailsScreen extends StatelessWidget {
                             },
                           ),
                           const SizedBox(height: 24),
-
                           const Text(
                             "MOVIE PLOT",
                             style: TextStyle(
@@ -187,7 +184,6 @@ class MovieDetailsScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 8),
-
                           Text(
                             movie.overview.isNotEmpty
                                 ? movie.overview
