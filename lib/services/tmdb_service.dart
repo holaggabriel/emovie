@@ -6,9 +6,13 @@ class MovieService {
   final String _baseUrl = 'https://api.themoviedb.org/3';
   final String _bearerToken = 'aqui_va_el_token';
 
-  // Obtener películas en tendencia (trending)
-  Future<List<MovieModel>> getTrendingMovies() async {
-    final url = Uri.parse('$_baseUrl/trending/movie/day?language=en-MX');
+  /// Idioma por defecto para todas las llamadas
+  String defaultLanguage = 'es-MX';
+
+  /// Obtener películas en tendencia (trending)
+  Future<List<MovieModel>> getTrendingMovies({String? language}) async {
+    final lang = language ?? defaultLanguage;
+    final url = Uri.parse('$_baseUrl/trending/movie/day?language=$lang');
 
     final response = await http.get(
       url,
@@ -27,9 +31,10 @@ class MovieService {
     }
   }
 
-  // Obtener próximos estrenos (upcoming)
-  Future<List<MovieModel>> getUpcomingMovies({String language = 'en-US', int page = 1}) async {
-    final url = Uri.parse('$_baseUrl/movie/upcoming?language=$language&page=$page');
+  /// Obtener próximos estrenos (upcoming)
+  Future<List<MovieModel>> getUpcomingMovies({String? language, int page = 1}) async {
+    final lang = language ?? defaultLanguage;
+    final url = Uri.parse('$_baseUrl/movie/upcoming?language=$lang&page=$page');
 
     final response = await http.get(
       url,
