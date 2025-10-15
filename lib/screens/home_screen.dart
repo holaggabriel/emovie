@@ -1,3 +1,4 @@
+import 'package:emovie/utils/debug_print.dart';
 import 'package:emovie/widgets/shimmer_text.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -10,6 +11,7 @@ import '../widgets/movie_grid_limited.dart';
 import '../widgets/section_title.dart';
 import '../screens/movie_details_screen.dart';
 import '../services/tmdb_service.dart';
+import '../services/connectivity_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,81 +29,92 @@ class _HomeScreenState extends State<HomeScreen> {
   List<MovieModel> recommendedMovies = [];
 
   final MovieService _movieService = MovieService();
+  final ConnectivityService _connectivityService = ConnectivityService();
 
-  // 🔹 Estados de carga
   bool _isLoadingUpcoming = true;
   bool _isLoadingTrending = true;
   bool _isLoadingRecommended = false;
 
+  bool isOffline = false;
+
   @override
   void initState() {
     super.initState();
+    _checkInternetAndLoadData();
     _loadFilters();
-    _loadUpcomingMovies();
-    _loadTrendingMovies();
+  }
+
+  /// Verifica conexión y carga datos
+  void _checkInternetAndLoadData() async {
+    isOffline = !(await _connectivityService.isConnectedToInternet());
+
+    // Cargar películas según el estado de conexión
+    await _loadUpcomingMovies();
+    await _loadTrendingMovies();
   }
 
   void _loadFilters() {
     filters = mockFilters;
-    if (filters.isNotEmpty) {
-      selectedFilter = filters.first; // primer filtro por defecto
-    }
+    if (filters.isNotEmpty) selectedFilter = filters.first;
   }
 
-  void _loadUpcomingMovies() async {
+  Future<void> _loadUpcomingMovies() async {
     setState(() => _isLoadingUpcoming = true);
-    try {
-      final movies = await _movieService.getUpcomingMovies();
 
-      // Guardar en Hive
-      final box = Hive.box<MovieModel>('upcomingMovies');
+    final box = Hive.box<MovieModel>('upcomingMovies');
+
+    if (isOffline) {
+      upcomingMovies = box.values.toList();
+      printInDebugMode('📦 Próximos estrenos cargados desde Hive: ${upcomingMovies.length}');
+      setState(() => _isLoadingUpcoming = false);
+      return;
+    }
+
+    try {
+      printInDebugMode('Intentando obtener próximos estrenos desde la API...');
+      final movies = await _movieService.getUpcomingMovies();
       await box.clear();
       await box.addAll(movies);
 
-      setState(() {
-        upcomingMovies = movies;
-        _isLoadingUpcoming = false;
-      });
+      upcomingMovies = movies;
+      printInDebugMode('✅ Próximos estrenos cargados desde API: ${movies.length}');
     } catch (e) {
-      print('Error al obtener próximos estrenos: $e');
-
-      // Leer desde Hive si falla
-      final box = Hive.box<MovieModel>('upcomingMovies');
-      setState(() {
-        upcomingMovies = box.values.toList();
-        _isLoadingUpcoming = false;
-      });
+      printInDebugMode('❌ Error al obtener próximos estrenos desde API: $e');
+      upcomingMovies = box.values.toList();
+      printInDebugMode('📦 Cargando próximos estrenos desde Hive: ${upcomingMovies.length}');
+    } finally {
+      setState(() => _isLoadingUpcoming = false);
     }
   }
 
-  void _loadTrendingMovies() async {
+  Future<void> _loadTrendingMovies() async {
     setState(() => _isLoadingTrending = true);
-    try {
-      final movies = await _movieService.getTrendingMovies();
 
-      // Guardar en Hive
-      final box = Hive.box<MovieModel>('trendingMovies');
+    final box = Hive.box<MovieModel>('trendingMovies');
+
+    if (isOffline) {
+      trendingMovies = box.values.toList();
+      printInDebugMode('📦 Películas trending cargadas desde Hive: ${trendingMovies.length}');
+      _applyFilter(selectedFilter);
+      setState(() => _isLoadingTrending = false);
+      return;
+    }
+
+    try {
+      printInDebugMode('Intentando obtener películas trending desde la API...');
+      final movies = await _movieService.getTrendingMovies();
       await box.clear();
       await box.addAll(movies);
 
-      setState(() {
-        trendingMovies = movies;
-        _isLoadingTrending = false;
-      });
-
-      // Aplicar filtro por defecto
-      _applyFilter(selectedFilter);
+      trendingMovies = movies;
+      printInDebugMode('✅ Películas trending cargadas desde API: ${movies.length}');
     } catch (e) {
-      print('Error al obtener películas trending: $e');
-
-      // Leer desde Hive si falla
-      final box = Hive.box<MovieModel>('trendingMovies');
-      setState(() {
-        trendingMovies = box.values.toList();
-        _isLoadingTrending = false;
-      });
-
+      printInDebugMode('❌ Error al obtener películas trending desde API: $e');
+      trendingMovies = box.values.toList();
+      printInDebugMode('📦 Películas trending cargadas desde Hive: ${trendingMovies.length}');
+    } finally {
       _applyFilter(selectedFilter);
+      setState(() => _isLoadingTrending = false);
     }
   }
 
@@ -151,68 +164,81 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
       ),
       backgroundColor: Colors.black45,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 🔹 Sección: Próximos estrenos
-            SectionTitle('Próximos estrenos'),
-            _isLoadingUpcoming
-                ? const ShimmerText(
-                    text: "Cargando películas próximas...",
-                  )
-                : upcomingMovies.isEmpty
-                ? Text(
-                    'No hay próximos estrenos disponibles...',
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
-                  )
-                : MovieListHorizontal(
-                    movies: upcomingMovies,
-                    onMovieTap: _navigateToDetails,
-                  ),
-
-            const SizedBox(height: 16),
-
-            // 🔹 Sección: Tendencias
-            SectionTitle('Tendencias'),
-            _isLoadingTrending
-                ? const ShimmerText(
-                    text: "Cargando películas en tendencia...",
-                  )
-                : trendingMovies.isEmpty
-                ? Text(
-                    'No hay películas en tendencia disponibles.',
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
-                  )
-                : MovieListHorizontal(
-                    movies: trendingMovies,
-                    onMovieTap: _navigateToDetails,
-                  ),
-
-            const SizedBox(height: 16),
-
-            // 🔹 Sección: Recomendados
-            SectionTitle('Recomendados para ti'),
-            FilterSelector(
-              filters: filters,
-              onFilterSelected: _onFilterSelected,
-              selectedFilter: selectedFilter,
+      body: Column(
+        children: [
+          if (isOffline)
+            Container(
+              width: double.infinity,
+              color: Colors.red,
+              padding: const EdgeInsets.all(5),
+              child: const Text(
+                'Sin conexión a internet',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
-            const SizedBox(height: 16),
-
-            _isLoadingRecommended
-                ? const ShimmerText(
-                    text: "Cargando películas recomendadas...",
-                  )
-                : recommendedMovies.isEmpty
-                ? Text(
-                    'No hay recomendaciones disponibles.',
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
-                  )
-                : MovieGridLimited(movies: recommendedMovies),
-          ],
-        ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SectionTitle('Próximos estrenos'),
+                  _isLoadingUpcoming
+                      ? const ShimmerText(
+                          text: "Cargando películas próximas...",
+                        )
+                      : upcomingMovies.isEmpty
+                      ? const Text(
+                          'No hay próximos estrenos disponibles.',
+                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                        )
+                      : MovieListHorizontal(
+                          movies: upcomingMovies,
+                          onMovieTap: _navigateToDetails,
+                        ),
+                  const SizedBox(height: 16),
+                  SectionTitle('Tendencias'),
+                  _isLoadingTrending
+                      ? const ShimmerText(
+                          text: "Cargando películas en tendencia...",
+                        )
+                      : trendingMovies.isEmpty
+                      ? const Text(
+                          'No hay películas en tendencia disponibles.',
+                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                        )
+                      : MovieListHorizontal(
+                          movies: trendingMovies,
+                          onMovieTap: _navigateToDetails,
+                        ),
+                  const SizedBox(height: 16),
+                  SectionTitle('Recomendados para ti'),
+                  FilterSelector(
+                    filters: filters,
+                    onFilterSelected: _onFilterSelected,
+                    selectedFilter: selectedFilter,
+                  ),
+                  const SizedBox(height: 16),
+                  _isLoadingRecommended
+                      ? const ShimmerText(
+                          text: "Cargando películas recomendadas...",
+                        )
+                      : recommendedMovies.isEmpty
+                      ? const Text(
+                          'No hay recomendaciones disponibles.',
+                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                        )
+                      : MovieGridLimited(movies: recommendedMovies),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
