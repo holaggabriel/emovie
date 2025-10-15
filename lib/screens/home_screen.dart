@@ -7,6 +7,7 @@ import '../widgets/movie_list_horizontal.dart';
 import '../widgets/movie_grid_limited.dart';
 import '../widgets/section_title.dart';
 import '../screens/movie_details_screen.dart';
+import '../services/tmdb_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,13 +20,54 @@ class _HomeScreenState extends State<HomeScreen> {
   late List<CategoryModel> categories;
   CategoryModel? selectedCategory;
 
-  late List<MovieModel> movies;
+  // Listas para películas
+  List<MovieModel> upcomingMovies = [];
+  List<MovieModel> trendingMovies = [];
+
+  final MovieService _movieService = MovieService();
 
   @override
   void initState() {
     super.initState();
+    _loadCategories();
+    _loadUpcomingMovies();   // Próximos estrenos desde API
+    _loadTrendingMovies();   // Tendencias desde API
+  }
+
+  void _loadCategories() {
     categories = mockCategories;
-    movies = mockMovies;
+  }
+
+  // Próximos estrenos desde API
+  void _loadUpcomingMovies() async {
+    try {
+      final movies = await _movieService.getUpcomingMovies();
+      setState(() {
+        upcomingMovies = movies;
+      });
+
+      for (var movie in movies) {
+        print('Upcoming: ${movie.title}');
+      }
+    } catch (e) {
+      print('Error al obtener próximos estrenos: $e');
+    }
+  }
+
+  // Películas trending desde API
+  void _loadTrendingMovies() async {
+    try {
+      final movies = await _movieService.getTrendingMovies();
+      setState(() {
+        trendingMovies = movies;
+      });
+
+      for (var movie in movies) {
+        print('Trending: ${movie.title}');
+      }
+    } catch (e) {
+      print('Error al obtener películas trending: $e');
+    }
   }
 
   void _onCategorySelected(CategoryModel category) {
@@ -57,13 +99,13 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             SectionTitle('Próximos estrenos'),
             MovieListHorizontal(
-              movies: movies,
+              movies: upcomingMovies,  // API
               onMovieTap: _navigateToDetails,
             ),
             const SizedBox(height: 16),
-                        SectionTitle('Tendencias'),
+            SectionTitle('Tendencias'),
             MovieListHorizontal(
-              movies: movies,
+              movies: trendingMovies,   // API
               onMovieTap: _navigateToDetails,
             ),
             const SizedBox(height: 16),
@@ -74,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 14.0),
             MovieGridLimited(
-              movies: movies,
+              movies: mockMovies,       // Siempre mock
             ),
           ],
         ),

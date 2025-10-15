@@ -17,7 +17,7 @@ class MovieDetailsScreen extends StatelessWidget {
           // Imagen de fondo
           Positioned.fill(
             child: Image.network(
-              movie.imageUrl,
+              movie.posterPath,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
                 color: Colors.grey[800],
@@ -74,7 +74,7 @@ class MovieDetailsScreen extends StatelessWidget {
                       Column(
                         children: [
                           Text(
-                            movie.name,
+                            movie.title,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: Colors.white,

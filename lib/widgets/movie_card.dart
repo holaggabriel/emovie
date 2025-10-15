@@ -17,6 +17,9 @@ class MovieCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Log para revisar la URL antes de renderizar la imagen
+    debugPrint('Intentando cargar poster: ${movie.posterPath}');
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -36,13 +39,17 @@ class MovieCard extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Image.network(
-            movie.imageUrl,
+            movie.posterPath,
             fit: BoxFit.cover,
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
               return const Center(child: CircularProgressIndicator());
             },
             errorBuilder: (context, error, stackTrace) {
+              // Log del error para depuración
+              debugPrint('Error al cargar la imagen: ${movie.posterPath}');
+              debugPrint('Detalles del error: $error');
+
               return Container(
                 color: Colors.grey[300],
                 child: const Center(
