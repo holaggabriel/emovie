@@ -1,5 +1,6 @@
 import 'package:emovie/widgets/shimmer_text.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../data/mock_data.dart';
 import '../models/filter_model.dart';
 import '../models/movie_model.dart';
@@ -51,13 +52,25 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _isLoadingUpcoming = true);
     try {
       final movies = await _movieService.getUpcomingMovies();
+
+      // Guardar en Hive
+      final box = Hive.box<MovieModel>('upcomingMovies');
+      await box.clear();
+      await box.addAll(movies);
+
       setState(() {
         upcomingMovies = movies;
         _isLoadingUpcoming = false;
       });
     } catch (e) {
       print('Error al obtener próximos estrenos: $e');
-      setState(() => _isLoadingUpcoming = false);
+
+      // Leer desde Hive si falla
+      final box = Hive.box<MovieModel>('upcomingMovies');
+      setState(() {
+        upcomingMovies = box.values.toList();
+        _isLoadingUpcoming = false;
+      });
     }
   }
 
@@ -65,6 +78,12 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _isLoadingTrending = true);
     try {
       final movies = await _movieService.getTrendingMovies();
+
+      // Guardar en Hive
+      final box = Hive.box<MovieModel>('trendingMovies');
+      await box.clear();
+      await box.addAll(movies);
+
       setState(() {
         trendingMovies = movies;
         _isLoadingTrending = false;
@@ -74,7 +93,15 @@ class _HomeScreenState extends State<HomeScreen> {
       _applyFilter(selectedFilter);
     } catch (e) {
       print('Error al obtener películas trending: $e');
-      setState(() => _isLoadingTrending = false);
+
+      // Leer desde Hive si falla
+      final box = Hive.box<MovieModel>('trendingMovies');
+      setState(() {
+        trendingMovies = box.values.toList();
+        _isLoadingTrending = false;
+      });
+
+      _applyFilter(selectedFilter);
     }
   }
 
@@ -137,9 +164,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 : upcomingMovies.isEmpty
                 ? Text(
-                  'No hay próximos estrenos disponibles...',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
-                )
+                    'No hay próximos estrenos disponibles...',
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  )
                 : MovieListHorizontal(
                     movies: upcomingMovies,
                     onMovieTap: _navigateToDetails,
@@ -155,9 +182,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 : trendingMovies.isEmpty
                 ? Text(
-                  'No hay películas en tendencia disponibles.',
-                   style: TextStyle(color: Colors.white70, fontSize: 14),
-                )
+                    'No hay películas en tendencia disponibles.',
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  )
                 : MovieListHorizontal(
                     movies: trendingMovies,
                     onMovieTap: _navigateToDetails,
@@ -180,9 +207,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 : recommendedMovies.isEmpty
                 ? Text(
-                  'No hay recomendaciones disponibles.',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
-                )
+                    'No hay recomendaciones disponibles.',
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  )
                 : MovieGridLimited(movies: recommendedMovies),
           ],
         ),

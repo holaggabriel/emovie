@@ -1,14 +1,40 @@
+import 'package:hive/hive.dart';
+
+part 'movie_model.g.dart';
+
+@HiveType(typeId: 0)
 class MovieModel {
+  @HiveField(0)
   final int id;
+
+  @HiveField(1)
   final String title;
+
+  @HiveField(2)
   final String originalTitle;
+
+  @HiveField(3)
   final String overview;
+
+  @HiveField(4)
   final String posterPath;
+
+  @HiveField(5)
   final String backdropPath;
+
+  @HiveField(6)
   final String releaseDate;
+
+  @HiveField(7)
   final double voteAverage;
+
+  @HiveField(8)
   final int voteCount;
+
+  @HiveField(9)
   final List<int> genreIds;
+
+  @HiveField(10)
   final String originalLanguage;
 
   const MovieModel({
@@ -25,14 +51,12 @@ class MovieModel {
     required this.originalLanguage,
   });
 
-  // Factory constructor para crear MovieModel desde JSON
   factory MovieModel.fromJson(Map<String, dynamic> json) {
     const String baseUrl = 'https://image.tmdb.org/t/p/w500';
 
     String poster = json['poster_path'] ?? '';
     String backdrop = json['backdrop_path'] ?? '';
 
-    // Solo agregamos baseUrl si hay path
     poster = poster.isNotEmpty ? '$baseUrl$poster' : '';
     backdrop = backdrop.isNotEmpty ? '$baseUrl$backdrop' : '';
 
