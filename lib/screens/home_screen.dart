@@ -1,3 +1,4 @@
+import 'package:emovie/widgets/shimmer_text.dart';
 import 'package:flutter/material.dart';
 import '../data/mock_data.dart';
 import '../models/filter_model.dart';
@@ -26,6 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final MovieService _movieService = MovieService();
 
+  // 🔹 Estados de carga
+  bool _isLoadingUpcoming = true;
+  bool _isLoadingTrending = true;
+  bool _isLoadingRecommended = false;
+
   @override
   void initState() {
     super.initState();
@@ -42,27 +48,33 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _loadUpcomingMovies() async {
+    setState(() => _isLoadingUpcoming = true);
     try {
       final movies = await _movieService.getUpcomingMovies();
       setState(() {
         upcomingMovies = movies;
+        _isLoadingUpcoming = false;
       });
     } catch (e) {
       print('Error al obtener próximos estrenos: $e');
+      setState(() => _isLoadingUpcoming = false);
     }
   }
 
   void _loadTrendingMovies() async {
+    setState(() => _isLoadingTrending = true);
     try {
       final movies = await _movieService.getTrendingMovies();
       setState(() {
         trendingMovies = movies;
+        _isLoadingTrending = false;
       });
 
       // Aplicar filtro por defecto
       _applyFilter(selectedFilter);
     } catch (e) {
       print('Error al obtener películas trending: $e');
+      setState(() => _isLoadingTrending = false);
     }
   }
 
@@ -76,17 +88,23 @@ class _HomeScreenState extends State<HomeScreen> {
   void _applyFilter(FilterModel? filter) {
     if (filter == null) return;
 
-    final filtered = trendingMovies.where((movie) {
-      switch (filter.type) {
-        case FilterType.language:
-          return movie.originalLanguage == filter.filterValue;
-        case FilterType.releaseYear:
-          return movie.releaseDate.startsWith(filter.filterValue);
-      }
-    }).take(6).toList();
+    setState(() => _isLoadingRecommended = true);
+
+    final filtered = trendingMovies
+        .where((movie) {
+          switch (filter.type) {
+            case FilterType.language:
+              return movie.originalLanguage == filter.filterValue;
+            case FilterType.releaseYear:
+              return movie.releaseDate.startsWith(filter.filterValue);
+          }
+        })
+        .take(6)
+        .toList();
 
     setState(() {
       recommendedMovies = filtered;
+      _isLoadingRecommended = false;
     });
   }
 
@@ -111,28 +129,61 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 🔹 Sección: Próximos estrenos
             SectionTitle('Próximos estrenos'),
-            MovieListHorizontal(
-              movies: upcomingMovies,
-              onMovieTap: _navigateToDetails,
-            ),
+            _isLoadingUpcoming
+                ? const ShimmerText(
+                    text: "Cargando películas próximas...",
+                  )
+                : upcomingMovies.isEmpty
+                ? Text(
+                  'No hay próximos estrenos disponibles...',
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                )
+                : MovieListHorizontal(
+                    movies: upcomingMovies,
+                    onMovieTap: _navigateToDetails,
+                  ),
+
             const SizedBox(height: 16),
+
+            // 🔹 Sección: Tendencias
             SectionTitle('Tendencias'),
-            MovieListHorizontal(
-              movies: trendingMovies,
-              onMovieTap: _navigateToDetails,
-            ),
+            _isLoadingTrending
+                ? const ShimmerText(
+                    text: "Cargando películas en tendencia...",
+                  )
+                : trendingMovies.isEmpty
+                ? Text(
+                  'No hay películas en tendencia disponibles.',
+                   style: TextStyle(color: Colors.white70, fontSize: 14),
+                )
+                : MovieListHorizontal(
+                    movies: trendingMovies,
+                    onMovieTap: _navigateToDetails,
+                  ),
+
             const SizedBox(height: 16),
+
+            // 🔹 Sección: Recomendados
             SectionTitle('Recomendados para ti'),
             FilterSelector(
               filters: filters,
               onFilterSelected: _onFilterSelected,
               selectedFilter: selectedFilter,
             ),
-            const SizedBox(height: 14),
-            MovieGridLimited(
-              movies: recommendedMovies,
-            ),
+            const SizedBox(height: 16),
+
+            _isLoadingRecommended
+                ? const ShimmerText(
+                    text: "Cargando películas recomendadas...",
+                  )
+                : recommendedMovies.isEmpty
+                ? Text(
+                  'No hay recomendaciones disponibles.',
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                )
+                : MovieGridLimited(movies: recommendedMovies),
           ],
         ),
       ),

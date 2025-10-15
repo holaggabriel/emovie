@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import '../models/movie_model.dart';
 
 class MovieCard extends StatelessWidget {
@@ -40,11 +41,20 @@ class MovieCard extends StatelessWidget {
             fit: BoxFit.cover,
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
-              return const Center(child: CircularProgressIndicator());
+
+              return Shimmer.fromColors(
+  baseColor: const Color(0xFF1E1E1E),      // gris muy oscuro, casi negro
+  highlightColor: const Color(0xFF2A2A2A), // gris oscuro ligeramente más claro
+  child: Container(
+    width: width,
+    height: height,
+    color: const Color(0xFF2A2A2A),        // mismo que el baseColor
+  ),
+);
             },
             errorBuilder: (context, error, stackTrace) {
               return Container(
-                color: Colors.grey[300],
+                color: Colors.grey.shade900,
                 child: const Center(
                   child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
                 ),
