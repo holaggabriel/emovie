@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
-import '../models/category_model.dart';
+import '../models/filter_model.dart';
 
 class FilterButton extends StatelessWidget {
-  final CategoryModel category;
+  final FilterModel filter;
+  final bool isSelected;
   final VoidCallback onTap;
 
   const FilterButton({
     super.key,
-    required this.category,
+    required this.filter,
     required this.onTap,
+    required this.isSelected,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = category.isSelected;
-
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -26,11 +26,11 @@ class FilterButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: Colors.white,
-            width: 1
+            width: 1,
           ),
         ),
         child: Text(
-          category.name,
+          filter.name,
           style: TextStyle(
             color: isSelected ? Colors.black : Colors.white,
             fontWeight: FontWeight.w500,

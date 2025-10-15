@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import '../models/category_model.dart';
+import '../models/filter_model.dart';
 import 'filter_button.dart';
 
 class FilterSelector extends StatefulWidget {
-  final List<CategoryModel> categories;
-  final ValueChanged<CategoryModel> onCategorySelected;
+  final List<FilterModel> filters;
+  final ValueChanged<FilterModel> onFilterSelected;
+  final FilterModel? selectedFilter;
 
   const FilterSelector({
     super.key,
-    required this.categories,
-    required this.onCategorySelected,
+    required this.filters,
+    required this.onFilterSelected,
+    this.selectedFilter,
   });
 
   @override
@@ -17,24 +19,20 @@ class FilterSelector extends StatefulWidget {
 }
 
 class _FilterSelectorState extends State<FilterSelector> {
-  late List<CategoryModel> _categories;
+  late FilterModel? _selectedFilter;
 
   @override
   void initState() {
     super.initState();
-    _categories = widget.categories;
+    _selectedFilter = widget.selectedFilter;
   }
 
-  void _handleCategoryTap(CategoryModel category) {
+  void _handleFilterTap(FilterModel filter) {
     setState(() {
-      _categories = _categories.map((c) {
-        return c.id == category.id
-            ? c.copyWith(isSelected: true)
-            : c.copyWith(isSelected: false);
-      }).toList();
+      _selectedFilter = filter;
     });
 
-    widget.onCategorySelected(category);
+    widget.onFilterSelected(filter);
   }
 
   @override
@@ -42,10 +40,12 @@ class _FilterSelectorState extends State<FilterSelector> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: _categories.map((category) {
+        children: widget.filters.map((filter) {
+          final isSelected = filter == _selectedFilter;
           return FilterButton(
-            category: category,
-            onTap: () => _handleCategoryTap(category),
+            filter: filter,
+            isSelected: isSelected,
+            onTap: () => _handleFilterTap(filter),
           );
         }).toList(),
       ),

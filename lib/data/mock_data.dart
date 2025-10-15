@@ -1,11 +1,17 @@
-import '../models/category_model.dart';
+import '../models/filter_model.dart';
 import '../models/movie_model.dart';
 
-final List<CategoryModel> mockCategories = [
-  const CategoryModel(id: 1, name: 'En español'),
-  const CategoryModel(id: 2, name: 'Lanzadas en 1993'),
-  const CategoryModel(id: 3, name: 'Acción'),
-  const CategoryModel(id: 4, name: 'Comedia'),
+final List<FilterModel> mockFilters = [
+  FilterModel(
+    filterValue: 'es',
+    name: 'En español',
+    type: FilterType.language,
+  ),
+  FilterModel(
+    filterValue: '1993',
+    name: 'Lanzadas en 1993',
+    type: FilterType.releaseYear,
+  )
 ];
 
 final List<MovieModel> mockMovies = [

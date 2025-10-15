@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/mock_data.dart';
-import '../models/category_model.dart';
+import '../models/filter_model.dart';
 import '../models/movie_model.dart';
 import '../widgets/filter_selector.dart';
 import '../widgets/movie_list_horizontal.dart';
@@ -17,44 +17,41 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late List<CategoryModel> categories;
-  CategoryModel? selectedCategory;
+  late List<FilterModel> filters;
+  FilterModel? selectedFilter;
 
-  // Listas para películas
   List<MovieModel> upcomingMovies = [];
   List<MovieModel> trendingMovies = [];
+  List<MovieModel> recommendedMovies = [];
 
   final MovieService _movieService = MovieService();
 
   @override
   void initState() {
     super.initState();
-    _loadCategories();
-    _loadUpcomingMovies();   // Próximos estrenos desde API
-    _loadTrendingMovies();   // Tendencias desde API
+    _loadFilters();
+    _loadUpcomingMovies();
+    _loadTrendingMovies();
   }
 
-  void _loadCategories() {
-    categories = mockCategories;
+  void _loadFilters() {
+    filters = mockFilters;
+    if (filters.isNotEmpty) {
+      selectedFilter = filters.first; // primer filtro por defecto
+    }
   }
 
-  // Próximos estrenos desde API
   void _loadUpcomingMovies() async {
     try {
       final movies = await _movieService.getUpcomingMovies();
       setState(() {
         upcomingMovies = movies;
       });
-
-      for (var movie in movies) {
-        print('Upcoming: ${movie.title}');
-      }
     } catch (e) {
       print('Error al obtener próximos estrenos: $e');
     }
   }
 
-  // Películas trending desde API
   void _loadTrendingMovies() async {
     try {
       final movies = await _movieService.getTrendingMovies();
@@ -62,24 +59,41 @@ class _HomeScreenState extends State<HomeScreen> {
         trendingMovies = movies;
       });
 
-      for (var movie in movies) {
-        print('Trending: ${movie.title}');
-      }
+      // Aplicar filtro por defecto
+      _applyFilter(selectedFilter);
     } catch (e) {
       print('Error al obtener películas trending: $e');
     }
   }
 
-  void _onCategorySelected(CategoryModel category) {
-    setState(() => selectedCategory = category);
+  void _onFilterSelected(FilterModel filter) {
+    setState(() {
+      selectedFilter = filter;
+      _applyFilter(filter);
+    });
+  }
+
+  void _applyFilter(FilterModel? filter) {
+    if (filter == null) return;
+
+    final filtered = trendingMovies.where((movie) {
+      switch (filter.type) {
+        case FilterType.language:
+          return movie.originalLanguage == filter.filterValue;
+        case FilterType.releaseYear:
+          return movie.releaseDate.startsWith(filter.filterValue);
+      }
+    }).take(6).toList();
+
+    setState(() {
+      recommendedMovies = filtered;
+    });
   }
 
   void _navigateToDetails(MovieModel movie) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => MovieDetailsScreen(movie: movie),
-      ),
+      MaterialPageRoute(builder: (context) => MovieDetailsScreen(movie: movie)),
     );
   }
 
@@ -93,30 +107,31 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       backgroundColor: Colors.black45,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(top: 5, right: 16, bottom: 16, left: 16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SectionTitle('Próximos estrenos'),
             MovieListHorizontal(
-              movies: upcomingMovies,  // API
+              movies: upcomingMovies,
               onMovieTap: _navigateToDetails,
             ),
             const SizedBox(height: 16),
             SectionTitle('Tendencias'),
             MovieListHorizontal(
-              movies: trendingMovies,   // API
+              movies: trendingMovies,
               onMovieTap: _navigateToDetails,
             ),
             const SizedBox(height: 16),
             SectionTitle('Recomendados para ti'),
             FilterSelector(
-              categories: categories,
-              onCategorySelected: _onCategorySelected,
+              filters: filters,
+              onFilterSelected: _onFilterSelected,
+              selectedFilter: selectedFilter,
             ),
-            const SizedBox(height: 14.0),
+            const SizedBox(height: 14),
             MovieGridLimited(
-              movies: mockMovies,       // Siempre mock
+              movies: recommendedMovies,
             ),
           ],
         ),

@@ -8,7 +8,7 @@ class MovieService {
 
   // Obtener películas en tendencia (trending)
   Future<List<MovieModel>> getTrendingMovies() async {
-    final url = Uri.parse('$_baseUrl/trending/movie/day?language=en-US');
+    final url = Uri.parse('$_baseUrl/trending/movie/day?language=en-MX');
 
     final response = await http.get(
       url,
