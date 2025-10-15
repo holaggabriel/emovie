@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/movie_model.dart';
 
 class MovieCard extends StatelessWidget {
@@ -36,30 +37,24 @@ class MovieCard extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
-          child: Image.network(
-            movie.posterPath,
+          child: CachedNetworkImage(
+            imageUrl: movie.posterPath,
             fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-
-              return Shimmer.fromColors(
-  baseColor: const Color(0xFF1E1E1E),      // gris muy oscuro, casi negro
-  highlightColor: const Color(0xFF2A2A2A), // gris oscuro ligeramente más claro
-  child: Container(
-    width: width,
-    height: height,
-    color: const Color(0xFF2A2A2A),        // mismo que el baseColor
-  ),
-);
-            },
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                color: Colors.grey.shade900,
-                child: const Center(
-                  child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
-                ),
-              );
-            },
+            placeholder: (context, url) => Shimmer.fromColors(
+              baseColor: const Color(0xFF1E1E1E),
+              highlightColor: const Color(0xFF2A2A2A),
+              child: Container(
+                width: width,
+                height: height,
+                color: const Color(0xFF2A2A2A),
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              color: Colors.grey.shade900,
+              child: const Center(
+                child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
+              ),
+            ),
           ),
         ),
       ),
