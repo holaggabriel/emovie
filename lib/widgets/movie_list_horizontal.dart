@@ -4,8 +4,13 @@ import 'movie_card.dart';
 
 class MovieListHorizontal extends StatelessWidget {
   final List<MovieModel> movies;
+  final void Function(MovieModel)? onMovieTap;
 
-  const MovieListHorizontal({super.key, required this.movies});
+  const MovieListHorizontal({
+    super.key,
+    required this.movies,
+    this.onMovieTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +20,15 @@ class MovieListHorizontal extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: movies.length,
         itemBuilder: (context, index) {
-          return MovieCard(movie: movies[index]);
+          final movie = movies[index];
+          return MovieCard(
+            movie: movie,
+            onTap: () {
+              if (onMovieTap != null) {
+                onMovieTap!(movie);
+              }
+            },
+          );
         },
       ),
     );

@@ -12,7 +12,7 @@ final List<MovieModel> mockMovies = [
   const MovieModel(
     id: '1',
     name: 'Avengers',
-    imageUrl: 'https://image.tmdb.org/t/p/w500/avengers.jpg',
+    imageUrl: 'https://imgs.search.brave.com/M07iCKg_hdxLnJpElT07cHd75juaTFPR0KTrfVDCSlE/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZS5zbGlkZXNoYXJl/Y2RuLmNvbS9wb3J0/YWRhc2RlcGVsY3Vs/YXMtMTIwODA1MTYw/NDA5LXBocGFwcDAx/Lzg1L1BvcnRhZGFz/LWRlLWxhcy1wZWxp/Y3VsYXMtNS0zMjAu/anBn',
   ),
   const MovieModel(
     id: '2',
