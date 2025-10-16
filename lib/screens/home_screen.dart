@@ -270,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           'No hay recomendaciones disponibles.',
                           style: TextStyle(color: Colors.white70, fontSize: 14),
                         )
-                      : MovieGridLimited(movies: recommendedMovies),
+                      : MovieGridLimited(movies: recommendedMovies, onMovieTap: _navigateToDetails,),
                 ],
               ),
             ),

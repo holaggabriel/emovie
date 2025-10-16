@@ -5,11 +5,13 @@ import 'movie_card.dart';
 class MovieGridLimited extends StatelessWidget {
   final List<MovieModel> movies;
   final int maxItems;
+  final void Function(MovieModel)? onMovieTap;
 
   const MovieGridLimited({
     super.key,
     required this.movies,
     this.maxItems = 6,
+    this.onMovieTap,
   });
 
   @override
@@ -18,16 +20,24 @@ class MovieGridLimited extends StatelessWidget {
 
     return GridView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(), // evita scroll dentro del grid
+      physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, // 3 columnas
+        crossAxisCount: 2,
         mainAxisSpacing: 8,
         crossAxisSpacing: 8,
-        childAspectRatio: 2/3, // relación ancho/alto similar a MovieCard
+        childAspectRatio: 2 / 3,
       ),
       itemCount: displayMovies.length,
       itemBuilder: (context, index) {
-        return MovieCard(movie: displayMovies[index]);
+        final movie = displayMovies[index];
+        return MovieCard(
+          movie: movie,
+          onTap: () {
+            if (onMovieTap != null) {
+              onMovieTap!(movie);
+            }
+          },
+        );
       },
     );
   }
