@@ -54,15 +54,18 @@ class MovieDetailsScreen extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            height: 100,
+            height: 150,
             child: Container(
               decoration: BoxDecoration(
+                // border: const Border(
+                //   bottom: BorderSide(color: Colors.yellow, width: 2),
+                // ),
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withValues(alpha: 0.9),
-                    Colors.black.withValues(alpha: 0.6),
+                    Colors.black.withValues(alpha: 0.8),
+                    Colors.black.withValues(alpha: 0.4),
                     Colors.transparent,
                   ],
                 ),
@@ -72,11 +75,15 @@ class MovieDetailsScreen extends StatelessWidget {
 
           /// Botón de retroceso
           Positioned(
-            top: 20,
-            left: 10,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
-              onPressed: () => Navigator.pop(context),
+            top: 30,
+            left: 25,
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: const Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+                size: 28,
+              ),
             ),
           ),
 
@@ -84,14 +91,18 @@ class MovieDetailsScreen extends StatelessWidget {
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
+              padding: const EdgeInsets.only(top: 100),
               width: double.infinity,
               decoration: BoxDecoration(
+                // border: const Border(
+                //   top: BorderSide(color: Colors.yellow, width: 2),
+                // ),
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                   colors: [
-                    Colors.black.withValues(alpha: 1),
-                    Colors.black.withValues(alpha: 0.7),
+                    Colors.black.withValues(alpha: 0.9),
+                    Colors.black.withValues(alpha: 0.6),
                     Colors.transparent,
                   ],
                 ),
