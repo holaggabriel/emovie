@@ -15,6 +15,7 @@ class _SplashScreenState extends State<SplashScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
+          
           Navigator.pushReplacement(
             context,
             PageRouteBuilder(
@@ -33,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     );
                   },
               transitionDuration: const Duration(
-                milliseconds: 500,
+                milliseconds: 200,
               ), // duración de la animación
             ),
           );

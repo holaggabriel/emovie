@@ -213,13 +213,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _navigateToDetails(MovieModel movie) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            MovieDetailsScreen(movie: movie, allGenres: movieGenres),
-      ),
-    );
+   Navigator.of(context).push(
+       
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                 MovieDetailsScreen(movie: movie, allGenres: movieGenres),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    var curve = Curves.easeInOut;
+                    var curvedAnimation = CurvedAnimation(
+                      parent: animation,
+                      curve: curve,
+                    );
+                    return FadeTransition(
+                      opacity: curvedAnimation,
+                      child: child,
+                    );
+                  },
+              transitionDuration: const Duration(
+                milliseconds: 300,
+              ), // duración de la animación
+            ),
+          );
   }
 
   @override
