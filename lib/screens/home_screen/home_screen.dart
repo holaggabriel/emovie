@@ -73,7 +73,6 @@ class HomeScreen extends ConsumerWidget {
             Container(
               width: double.infinity,
               color: Colors.red,
-              margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(5),
               child: const Text(
                 'Sin conexión a internet',
@@ -93,6 +92,7 @@ class HomeScreen extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
+                  const SizedBox(height: 8),
                   const SectionTitle('Próximos estrenos'),
                   UpcomingMoviesSection(
                     upcomingMovies: upcomingMovies,
