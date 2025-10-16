@@ -1,4 +1,4 @@
-enum FilterType { language, releaseYear }
+enum FilterType { language, releaseYear, unknown }
 
 class FilterModel {
   final String filterValue;  // Valor que se compara en la propiedad de MovieModel
@@ -10,4 +10,10 @@ class FilterModel {
     required this.name,
     required this.type,
   });
+
+  // Modelo vacío
+  factory FilterModel.empty() {
+    return FilterModel(filterValue: '', name: '', type: FilterType.unknown);
+
+  }
 }

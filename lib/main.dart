@@ -2,6 +2,7 @@ import 'package:emovie/config/config.dart';
 import 'package:emovie/models/movie_genre_model.dart';
 import 'package:emovie/models/movie_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'screens/splash_screen.dart';
 
@@ -26,7 +27,7 @@ void main() async {
   await Hive.openBox<MovieModel>('trendingMovies');
   await Hive.openBox<MovieGenreModel>('movieGenres');
 
-  runApp(const MyApp());
+  runApp(ProviderScope(child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

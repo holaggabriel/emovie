@@ -16,6 +16,8 @@ List<MovieModel> filterMovies(
         return movie.originalLanguage == filter.filterValue;
       case FilterType.releaseYear:
         return movie.releaseDate.startsWith(filter.filterValue);
+      case FilterType.unknown:
+        throw UnimplementedError();
     }
   }).take(maxResults).toList();
 
