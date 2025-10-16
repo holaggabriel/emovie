@@ -10,18 +10,13 @@ import '../data/mock_data.dart';
 import '../utils/movie_filter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-/// Servicio
+/// Servicios y estado básico
 final movieServiceProvider = Provider<MovieService>((ref) => MovieService());
-
-/// Estado offline
+final connectivityServiceProvider = Provider<ConnectivityService>((ref) => ConnectivityService());
 final isOfflineProvider = StateProvider<bool>((ref) => false);
 
-/// Filtros disponibles
-final availableFiltersProvider = Provider<List<FilterModel>>((ref) {
-  return mockFilters;
-});
-
-/// FILTRO SELECCIONADO
+/// Filtros
+final availableFiltersProvider = Provider<List<FilterModel>>((ref) => mockFilters);
 final selectedFilterProvider = StateProvider<FilterModel>((ref) {
   final filters = ref.read(availableFiltersProvider);
   return filters.isNotEmpty ? filters.first : FilterModel.empty();
@@ -36,39 +31,44 @@ final loadingStateProvider = Provider<Map<String, bool>>((ref) {
   return {'upcoming': upcoming, 'trending': trending, 'genres': genres};
 });
 
-/// GÉNEROS
-class MovieGenresNotifier extends AsyncNotifier<List<MovieGenreModel>> {
-  late MovieService _service;
+/// --- CLASE BASE PARA COMPARTIR LÓGICA ---
 
+abstract class BaseMovieNotifier<T> extends AsyncNotifier<List<T>> {
+  late MovieService _service;
+  
   @override
-  Future<List<MovieGenreModel>> build() async {
+  Future<List<T>> build() async {
     _service = ref.read(movieServiceProvider);
-    return await loadGenres();
+    return await loadData();
   }
 
-  Future<List<MovieGenreModel>> loadGenres({bool forceRefresh = false}) async {
-    final box = Hive.box<MovieGenreModel>('movieGenres');
+  // Métodos abstractos que deben implementar las clases hijas
+  Future<List<T>> fetchFromApi();
+  String get boxName;
 
-    // 1. ✅ PRIMERO verificar conexión y actualizar estado
-    final connectivityService = ConnectivityService();
+  Future<List<T>> loadData({bool forceRefresh = false}) async {
+    final box = Hive.box<T>(boxName);
+    
+    // Verificar conexión
+    final connectivityService = ref.read(connectivityServiceProvider);
     final isConnected = await connectivityService.isConnectedToInternet();
     ref.read(isOfflineProvider.notifier).state = !isConnected;
 
-    // 2. ✅ PRIORIDAD: Si hay conexión, intentar API primero
+    // Con conexión: intentar API primero
     if (isConnected) {
       try {
-        final genres = await _service.getMovieGenres();
+        final data = await fetchFromApi();
         await box.clear();
-        await box.addAll(genres);
-        return genres;
+        await box.addAll(data);
+        return data;
       } catch (e) {
-        // ✅ Si API falla, usar cache como fallback
+        // Fallback a cache si API falla
         if (box.isNotEmpty) return box.values.toList();
         rethrow;
       }
     }
 
-    // 3. ✅ SOLO si no hay conexión, usar cache
+    // Sin conexión: usar cache
     if (box.isNotEmpty) {
       return box.values.toList();
     } else {
@@ -76,121 +76,56 @@ class MovieGenresNotifier extends AsyncNotifier<List<MovieGenreModel>> {
     }
   }
 
-  // Método para forzar refresh
-  Future<void> refreshGenres() async {
+  Future<void> refreshData() async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => loadGenres(forceRefresh: true));
+    state = await AsyncValue.guard(() => loadData(forceRefresh: true));
   }
 }
 
-final movieGenresProvider =
-    AsyncNotifierProvider<MovieGenresNotifier, List<MovieGenreModel>>(
-      () => MovieGenresNotifier(),
-    );
+/// --- IMPLEMENTACIONES ESPECÍFICAS ---
 
-/// PRÓXIMOS ESTRENOS
-class UpcomingMoviesNotifier extends AsyncNotifier<List<MovieModel>> {
-  late MovieService _service;
+class MovieGenresNotifier extends BaseMovieNotifier<MovieGenreModel> {
+  @override
+  String get boxName => 'movieGenres';
 
   @override
-  Future<List<MovieModel>> build() async {
-    _service = ref.read(movieServiceProvider);
-    return await loadMovies();
-  }
-
-  Future<List<MovieModel>> loadMovies({bool forceRefresh = false}) async {
-    final box = Hive.box<MovieModel>('upcomingMovies');
-
-    // 1. ✅ PRIMERO verificar conexión y actualizar estado
-    final connectivityService = ConnectivityService();
-    final isConnected = await connectivityService.isConnectedToInternet();
-    ref.read(isOfflineProvider.notifier).state = !isConnected;
-
-    // 2. ✅ PRIORIDAD: Si hay conexión, intentar API primero
-    if (isConnected) {
-      try {
-        final movies = await _service.getUpcomingMovies();
-        await box.clear();
-        await box.addAll(movies);
-        return movies;
-      } catch (e) {
-        // ✅ Si API falla, usar cache como fallback
-        if (box.isNotEmpty) return box.values.toList();
-        rethrow;
-      }
-    }
-
-    // 3. ✅ SOLO si no hay conexión, usar cache
-    if (box.isNotEmpty) {
-      return box.values.toList();
-    } else {
-      throw Exception('Sin conexión y sin datos locales');
-    }
-  }
-
-  // Método para forzar refresh
-  Future<void> refreshMovies() async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => loadMovies(forceRefresh: true));
+  Future<List<MovieGenreModel>> fetchFromApi() {
+    return _service.getMovieGenres();
   }
 }
 
-final upcomingMoviesProvider =
-    AsyncNotifierProvider<UpcomingMoviesNotifier, List<MovieModel>>(
-      () => UpcomingMoviesNotifier(),
-    );
-
-/// TRENDING
-class TrendingMoviesNotifier extends AsyncNotifier<List<MovieModel>> {
-  late MovieService _service;
+class UpcomingMoviesNotifier extends BaseMovieNotifier<MovieModel> {
+  @override
+  String get boxName => 'upcomingMovies';
 
   @override
-  Future<List<MovieModel>> build() async {
-    _service = ref.read(movieServiceProvider);
-    return await loadMovies();
-  }
-
-  Future<List<MovieModel>> loadMovies({bool forceRefresh = false}) async {
-    final box = Hive.box<MovieModel>('trendingMovies');
-
-    // 1. ✅ PRIMERO verificar conexión y actualizar estado
-    final connectivityService = ConnectivityService();
-    final isConnected = await connectivityService.isConnectedToInternet();
-    ref.read(isOfflineProvider.notifier).state = !isConnected;
-
-    // 2. ✅ PRIORIDAD: Si hay conexión, intentar API primero
-    if (isConnected) {
-      try {
-        final movies = await _service.getTrendingMovies();
-        await box.clear();
-        await box.addAll(movies);
-        return movies;
-      } catch (e) {
-        // ✅ Si API falla, usar cache como fallback
-        if (box.isNotEmpty) return box.values.toList();
-        rethrow;
-      }
-    }
-
-    // 3. ✅ SOLO si no hay conexión, usar cache
-    if (box.isNotEmpty) {
-      return box.values.toList();
-    } else {
-      throw Exception('Sin conexión y sin datos locales');
-    }
-  }
-
-  // Método para forzar refresh
-  Future<void> refreshMovies() async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => loadMovies(forceRefresh: true));
+  Future<List<MovieModel>> fetchFromApi() {
+    return _service.getUpcomingMovies();
   }
 }
 
-final trendingMoviesProvider =
-    AsyncNotifierProvider<TrendingMoviesNotifier, List<MovieModel>>(
-      () => TrendingMoviesNotifier(),
-    );
+class TrendingMoviesNotifier extends BaseMovieNotifier<MovieModel> {
+  @override
+  String get boxName => 'trendingMovies';
+
+  @override
+  Future<List<MovieModel>> fetchFromApi() {
+    return _service.getTrendingMovies();
+  }
+}
+
+/// Providers
+final movieGenresProvider = AsyncNotifierProvider<MovieGenresNotifier, List<MovieGenreModel>>(
+  () => MovieGenresNotifier(),
+);
+
+final upcomingMoviesProvider = AsyncNotifierProvider<UpcomingMoviesNotifier, List<MovieModel>>(
+  () => UpcomingMoviesNotifier(),
+);
+
+final trendingMoviesProvider = AsyncNotifierProvider<TrendingMoviesNotifier, List<MovieModel>>(
+  () => TrendingMoviesNotifier(),
+);
 
 /// RECOMENDADAS (derivadas de trending + filtro)
 final recommendedMoviesProvider = Provider<List<MovieModel>>((ref) {
@@ -205,19 +140,20 @@ final recommendedMoviesProvider = Provider<List<MovieModel>>((ref) {
 
 /// Provider para refrescar todos los datos
 final refreshAllProvider = Provider<Future<void> Function()>((ref) {
-  Future<void> refreshAll() async {
-    final connectivityService = ConnectivityService();
+  return () async {
+    final connectivityService = ref.read(connectivityServiceProvider);
     final isConnected = await connectivityService.isConnectedToInternet();
     ref.read(isOfflineProvider.notifier).state = !isConnected;
-    // Si no hay conexión, no hacer nada
+    
     if (!isConnected) {
       printInDebugMode('⚠️ Sin conexión, no se puede refrescar');
       return;
     }
-    ref.read(movieGenresProvider.notifier).refreshGenres();
-    ref.read(upcomingMoviesProvider.notifier).refreshMovies();
-    ref.read(trendingMoviesProvider.notifier).refreshMovies();
-  }
-
-  return refreshAll; // <- Esto es clave
+    
+    await Future.wait([
+      ref.read(movieGenresProvider.notifier).refreshData(),
+      ref.read(upcomingMoviesProvider.notifier).refreshData(),
+      ref.read(trendingMoviesProvider.notifier).refreshData(),
+    ]);
+  };
 });

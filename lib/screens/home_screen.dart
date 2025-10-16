@@ -56,7 +56,7 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'eMovies',
+          'eMovie',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w800,
