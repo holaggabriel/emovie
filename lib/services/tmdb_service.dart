@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'package:emovie/config/config.dart';
 import 'package:http/http.dart' as http;
 import '../models/movie_model.dart';
 
 class MovieService {
-  final String _baseUrl = 'https://api.themoviedb.org/3';
-  final String _bearerToken = 'aqui_va_el_token';
+  final String _baseUrl = Config.instance.apiBaseUrl;
+  final String _bearerToken = Config.instance.apiToken;
 
   /// Idioma por defecto para todas las llamadas
   String defaultLanguage = 'es-MX';

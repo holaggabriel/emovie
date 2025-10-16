@@ -65,7 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (isOffline) {
       upcomingMovies = box.values.toList();
-      printInDebugMode('📦 Próximos estrenos cargados desde Hive: ${upcomingMovies.length}');
+      printInDebugMode(
+        '📦 Próximos estrenos cargados desde Hive: ${upcomingMovies.length}',
+      );
       setState(() => _isLoadingUpcoming = false);
       return;
     }
@@ -77,11 +79,15 @@ class _HomeScreenState extends State<HomeScreen> {
       await box.addAll(movies);
 
       upcomingMovies = movies;
-      printInDebugMode('✅ Próximos estrenos cargados desde API: ${movies.length}');
+      printInDebugMode(
+        '✅ Próximos estrenos cargados desde API: ${movies.length}',
+      );
     } catch (e) {
       printInDebugMode('❌ Error al obtener próximos estrenos desde API: $e');
       upcomingMovies = box.values.toList();
-      printInDebugMode('📦 Cargando próximos estrenos desde Hive: ${upcomingMovies.length}');
+      printInDebugMode(
+        '📦 Cargando próximos estrenos desde Hive: ${upcomingMovies.length}',
+      );
     } finally {
       setState(() => _isLoadingUpcoming = false);
     }
@@ -94,7 +100,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (isOffline) {
       trendingMovies = box.values.toList();
-      printInDebugMode('📦 Películas trending cargadas desde Hive: ${trendingMovies.length}');
+      printInDebugMode(
+        '📦 Películas trending cargadas desde Hive: ${trendingMovies.length}',
+      );
       _applyFilter(selectedFilter);
       setState(() => _isLoadingTrending = false);
       return;
@@ -107,11 +115,15 @@ class _HomeScreenState extends State<HomeScreen> {
       await box.addAll(movies);
 
       trendingMovies = movies;
-      printInDebugMode('✅ Películas trending cargadas desde API: ${movies.length}');
+      printInDebugMode(
+        '✅ Películas trending cargadas desde API: ${movies.length}',
+      );
     } catch (e) {
       printInDebugMode('❌ Error al obtener películas trending desde API: $e');
       trendingMovies = box.values.toList();
-      printInDebugMode('📦 Películas trending cargadas desde Hive: ${trendingMovies.length}');
+      printInDebugMode(
+        '📦 Películas trending cargadas desde Hive: ${trendingMovies.length}',
+      );
     } finally {
       _applyFilter(selectedFilter);
       setState(() => _isLoadingTrending = false);
@@ -187,6 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row(),
                   SectionTitle('Próximos estrenos'),
                   _isLoadingUpcoming
                       ? const ShimmerText(

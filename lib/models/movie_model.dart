@@ -1,3 +1,4 @@
+import 'package:emovie/config/config.dart';
 import 'package:hive/hive.dart';
 
 part 'movie_model.g.dart';
@@ -52,7 +53,7 @@ class MovieModel {
   });
 
   factory MovieModel.fromJson(Map<String, dynamic> json) {
-    const String baseUrl = 'https://image.tmdb.org/t/p/w500';
+    final String baseUrl = Config.instance.imageBaseUrl;
 
     String poster = json['poster_path'] ?? '';
     String backdrop = json['backdrop_path'] ?? '';
