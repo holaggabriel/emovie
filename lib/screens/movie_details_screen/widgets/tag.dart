@@ -6,23 +6,23 @@ class Tag extends StatelessWidget {
   final Color textColor;
   final Widget? leadingIcon;
   final FontWeight fontWeight;
-  final double fontSize; // Nuevo parámetro opcional
+  final double fontSize;
 
   const Tag({
     super.key,
     required this.text,
-    this.backgroundColor = Colors.black54,
-    this.textColor = Colors.white,
+    this.backgroundColor = Colors.white70,
+    this.textColor = Colors.black,
     this.leadingIcon,
-    this.fontWeight = FontWeight.normal,
-    this.fontSize = 12, // Valor por defecto
+    this.fontWeight = FontWeight.w400,
+    this.fontSize = 12,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 28,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(4),
@@ -30,15 +30,12 @@ class Tag extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (leadingIcon != null) ...[
-            leadingIcon!,
-            const SizedBox(width: 4),
-          ],
+          if (leadingIcon != null) ...[leadingIcon!, const SizedBox(width: 4)],
           Text(
             text,
             style: TextStyle(
               color: textColor,
-              fontSize: fontSize, // Usamos el parámetro opcional
+              fontSize: fontSize,
               fontWeight: fontWeight,
             ),
           ),

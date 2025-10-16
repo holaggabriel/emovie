@@ -18,7 +18,7 @@ class MovieDetailsScreen extends StatelessWidget {
 
   String _getGenres(List<int> genreIds) {
     final genreMap = {for (var g in allGenres) g.id: g.name};
-    return genreIds.map((id) => genreMap[id] ?? 'Unknown').join(' · ');
+    return genreIds.map((id) => genreMap[id] ?? 'Unknown').join('  •  ');
   }
 
   @override
@@ -116,22 +116,9 @@ class MovieDetailsScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Tag(
-                            text: releaseYear,
-                            backgroundColor: Colors.white.withValues(
-                              alpha: 0.8,
-                            ),
-                            fontWeight: FontWeight.w400,
-                            textColor: Colors.black,
-                          ),
+                          Tag(text: releaseYear),
                           const SizedBox(width: 8),
-                          Tag(
-                            text: language,
-                            backgroundColor: Colors.white.withValues(
-                              alpha: 0.8,
-                            ),
-                            textColor: Colors.black,
-                          ),
+                          Tag(text: language),
                           const SizedBox(width: 8),
                           Tag(
                             text: rating,
