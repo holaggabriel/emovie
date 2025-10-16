@@ -168,7 +168,6 @@ class _HomeScreenState extends State<HomeScreen> {
       // Cargar desde Hive si no hay conexión
       movieGenres = box.values.toList();
       printInDebugMode('📦 Géneros cargados desde Hive: ${movieGenres.length}');
-      _genresLoaded = true;
       setState(() {});
       return;
     }
