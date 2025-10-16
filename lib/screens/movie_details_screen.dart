@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import '../models/movie_model.dart';
-import '../widgets/tag.dart';
-import '../widgets/trailer_button.dart';
+import 'widgets/tag.dart';
+import 'widgets/trailer_button.dart';
 
 class MovieDetailsScreen extends StatelessWidget {
   final MovieModel movie;
