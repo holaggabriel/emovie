@@ -60,12 +60,7 @@ class MovieDetailsScreen extends StatelessWidget {
                 child: Container(color: const Color(0xFF2A2A2A)),
               ),
               errorWidget: (context, url, error) => Container(
-                color: Colors.grey[800],
-                child: const Icon(
-                  Icons.broken_image,
-                  size: 50,
-                  color: Colors.white,
-                ),
+                color: Colors.grey[800]
               ),
             ),
           ),

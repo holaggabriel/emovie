@@ -182,6 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               width: double.infinity,
               color: Colors.red,
+              margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(5),
               child: const Text(
                 'Sin conexión a internet',
