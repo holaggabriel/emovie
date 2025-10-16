@@ -75,7 +75,7 @@ class MovieDetailsScreen extends StatelessWidget {
 
           /// Botón de retroceso
           Positioned(
-            top: 32,
+            top: 35,
             left: 24,
             child: GestureDetector(
               onTap: () => Navigator.pop(context),
