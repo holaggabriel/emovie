@@ -25,18 +25,8 @@ class MovieCard extends StatelessWidget {
         width: width,
         height: height,
         margin: const EdgeInsets.only(right: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 6,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(7.36),
           child: CachedNetworkImage(
             imageUrl: movie.posterPath,
             fit: BoxFit.cover,

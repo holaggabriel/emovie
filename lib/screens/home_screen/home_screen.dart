@@ -12,11 +12,29 @@ import 'package:emovie/screens/home_screen/widgets/movie_grid_limited.dart';
 import 'package:emovie/screens/home_screen/widgets/section_title.dart';
 import 'package:emovie/screens/movie_details_screen/movie_details_screen.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool isRefreshing = false;
+
+  Future<void> _refreshData() async {
+    setState(() => isRefreshing = true);
+
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    final refreshAll = ref.read(refreshAllProvider);
+    await refreshAll();
+
+    if (mounted) setState(() => isRefreshing = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isOffline = ref.watch(isOfflineProvider);
     final selectedFilter = ref.watch(selectedFilterProvider);
     final filters = ref.watch(availableFiltersProvider);
@@ -26,14 +44,6 @@ class HomeScreen extends ConsumerWidget {
     final trendingMovies = ref.watch(trendingMoviesProvider);
     final recommendedMovies = ref.watch(recommendedMoviesProvider);
     final movieGenres = ref.watch(movieGenresProvider);
-    final refreshAll = ref.read(refreshAllProvider);
-
-    Future<void> onRefresh() async {
-      printInDebugMode('🔄 Usuario intentó recargar datos');
-      await Future.delayed(const Duration(milliseconds: 300));
-      printInDebugMode('✅ Ejecutando refresh...');
-      refreshAll();
-    }
 
     void onFilterSelected(FilterModel filter) {
       ref.read(selectedFilterProvider.notifier).state = filter;
@@ -55,19 +65,30 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'eMovie',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w800,
-            fontSize: 25,
-          ),
+        title: GestureDetector(
+          // Si ya se preciona mientras está refrescando, no hacer nada
+          onTap: isRefreshing ? null : _refreshData,
+          child: isRefreshing
+              ? const ShimmerText(
+                  text: "eMovie",
+                  fontSize: 25,
+                  fontWeight: FontWeight.w800,
+                )
+              : const Text(
+                  'eMovie',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 25,
+                  ),
+                ),
         ),
         backgroundColor: Colors.black,
         centerTitle: true,
       ),
       backgroundColor: Colors.black45,
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           if (isOffline)
             Container(
@@ -85,14 +106,13 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
           Expanded(
-            child: RefreshIndicator(
-              onRefresh: onRefresh,
-              color: Colors.white,
-              backgroundColor: Colors.black,
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 8),
+                  Row(), // Expande la columna horizontalmente
+                  if (isOffline) const SizedBox(height: 8),
                   const SectionTitle('Próximos estrenos'),
                   UpcomingMoviesSection(
                     upcomingMovies: upcomingMovies,
