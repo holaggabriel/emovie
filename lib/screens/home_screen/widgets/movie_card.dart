@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../models/movie_model.dart';
+import '../../../models/movie_model.dart';
 
 class MovieCard extends StatelessWidget {
   final MovieModel movie;

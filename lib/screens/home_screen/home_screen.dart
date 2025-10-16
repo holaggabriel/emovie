@@ -5,12 +5,12 @@ import 'package:emovie/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:emovie/utils/debug_print.dart';
-import 'package:emovie/screens/widgets/shimmer_text.dart';
-import 'package:emovie/screens/widgets/filter_selector.dart';
-import 'package:emovie/screens/widgets/movie_list_horizontal.dart';
-import 'package:emovie/screens/widgets/movie_grid_limited.dart';
-import 'package:emovie/screens/widgets/section_title.dart';
-import 'package:emovie/screens/movie_details_screen.dart';
+import 'package:emovie/widgets/shimmer_text.dart';
+import 'package:emovie/screens/home_screen/widgets/filter_selector.dart';
+import 'package:emovie/screens/home_screen/widgets/movie_list_horizontal.dart';
+import 'package:emovie/screens/home_screen/widgets/movie_grid_limited.dart';
+import 'package:emovie/screens/home_screen/widgets/section_title.dart';
+import 'package:emovie/screens/movie_details_screen/movie_details_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -94,14 +94,14 @@ class HomeScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
                   const SectionTitle('Próximos estrenos'),
-                  _UpcomingMoviesSection(
+                  UpcomingMoviesSection(
                     upcomingMovies: upcomingMovies,
                     isLoading: loadingStates['upcoming']!,
                     onMovieTap: navigateToDetails,
                   ),
                   const SizedBox(height: 16),
                   const SectionTitle('Tendencias'),
-                  _TrendingMoviesSection(
+                  TrendingMoviesSection(
                     trendingMovies: trendingMovies,
                     isLoading: loadingStates['trending']!,
                     onMovieTap: navigateToDetails,
@@ -114,7 +114,7 @@ class HomeScreen extends ConsumerWidget {
                     selectedFilter: selectedFilter,
                   ),
                   const SizedBox(height: 16),
-                  _RecommendedMoviesSection(
+                  RecommendedMoviesSection(
                     movies: recommendedMovies,
                     isLoading: loadingStates['trending']!,
                     onMovieTap: navigateToDetails,
@@ -151,12 +151,13 @@ class HomeScreen extends ConsumerWidget {
 }
 
 /// Widget independiente para la sección de próximos estrenos
-class _UpcomingMoviesSection extends StatelessWidget {
+class UpcomingMoviesSection extends StatelessWidget {
   final AsyncValue<List<MovieModel>> upcomingMovies;
   final bool isLoading;
   final Function(MovieModel) onMovieTap;
 
-  const _UpcomingMoviesSection({
+  const UpcomingMoviesSection({
+    super.key,
     required this.upcomingMovies,
     required this.isLoading,
     required this.onMovieTap,
@@ -168,22 +169,23 @@ class _UpcomingMoviesSection extends StatelessWidget {
       loading: () => const ShimmerText(text: "Cargando películas próximas..."),
       error: (error, stack) {
         printInDebugMode('❌ Error en próximos estrenos: $error');
-        return const _ErrorMessage('Error al cargar próximos estrenos.');
+        return const EmptyMessage('Error al cargar próximos estrenos.');
       },
       data: (movies) => movies.isEmpty
-          ? const _EmptyMessage('No hay próximos estrenos disponibles.')
+          ? const EmptyMessage('No hay próximos estrenos disponibles.')
           : MovieListHorizontal(movies: movies, onMovieTap: onMovieTap),
     );
   }
 }
 
 /// Widget independiente para la sección de tendencias
-class _TrendingMoviesSection extends StatelessWidget {
+class TrendingMoviesSection extends StatelessWidget {
   final AsyncValue<List<MovieModel>> trendingMovies;
   final bool isLoading;
   final Function(MovieModel) onMovieTap;
 
-  const _TrendingMoviesSection({
+  const TrendingMoviesSection({
+    super.key,
     required this.trendingMovies,
     required this.isLoading,
     required this.onMovieTap,
@@ -196,22 +198,23 @@ class _TrendingMoviesSection extends StatelessWidget {
           const ShimmerText(text: "Cargando películas en tendencia..."),
       error: (error, stack) {
         printInDebugMode('❌ Error en tendencias: $error');
-        return const _ErrorMessage('Error al cargar tendencias.');
+        return const EmptyMessage('Error al cargar tendencias.');
       },
       data: (movies) => movies.isEmpty
-          ? const _EmptyMessage('No hay películas en tendencia disponibles.')
+          ? const EmptyMessage('No hay películas en tendencia disponibles.')
           : MovieListHorizontal(movies: movies, onMovieTap: onMovieTap),
     );
   }
 }
 
 /// Widget independiente para la sección de recomendados
-class _RecommendedMoviesSection extends StatelessWidget {
+class RecommendedMoviesSection extends StatelessWidget {
   final List<MovieModel> movies;
   final bool isLoading;
   final Function(MovieModel) onMovieTap;
 
-  const _RecommendedMoviesSection({
+  const RecommendedMoviesSection({
+    super.key,
     required this.movies,
     required this.isLoading,
     required this.onMovieTap,
@@ -224,31 +227,16 @@ class _RecommendedMoviesSection extends StatelessWidget {
     }
 
     return movies.isEmpty
-        ? const _EmptyMessage('No hay recomendaciones disponibles.')
+        ? const EmptyMessage('No hay recomendaciones disponibles.')
         : MovieGridLimited(movies: movies, onMovieTap: onMovieTap);
   }
 }
 
-/// Widget reutilizable para mensajes de error
-class _ErrorMessage extends StatelessWidget {
-  final String message;
-
-  const _ErrorMessage(this.message);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      message,
-      style: const TextStyle(color: Colors.white70, fontSize: 14),
-    );
-  }
-}
-
 /// Widget reutilizable para mensajes de vacío
-class _EmptyMessage extends StatelessWidget {
+class EmptyMessage extends StatelessWidget {
   final String message;
 
-  const _EmptyMessage(this.message);
+  const EmptyMessage(this.message, {super.key});
 
   @override
   Widget build(BuildContext context) {
