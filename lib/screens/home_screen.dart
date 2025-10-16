@@ -1,5 +1,6 @@
 import 'package:emovie/utils/debug_print.dart';
 import 'package:emovie/screens/widgets/shimmer_text.dart';
+import 'package:emovie/utils/movie_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../data/mock_data.dart';
@@ -137,28 +138,16 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _applyFilter(FilterModel? filter) {
-    if (filter == null) return;
+void _applyFilter(FilterModel? filter) {
+  if (filter == null) return;
 
-    setState(() => _isLoadingRecommended = true);
+  setState(() => _isLoadingRecommended = true);
 
-    final filtered = trendingMovies
-        .where((movie) {
-          switch (filter.type) {
-            case FilterType.language:
-              return movie.originalLanguage == filter.filterValue;
-            case FilterType.releaseYear:
-              return movie.releaseDate.startsWith(filter.filterValue);
-          }
-        })
-        .take(6)
-        .toList();
+  recommendedMovies = filterMovies(trendingMovies, filter);
 
-    setState(() {
-      recommendedMovies = filtered;
-      _isLoadingRecommended = false;
-    });
-  }
+  setState(() => _isLoadingRecommended = false);
+}
+
 
   void _navigateToDetails(MovieModel movie) {
     Navigator.push(
