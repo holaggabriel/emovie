@@ -227,7 +227,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Movies', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'eMovies',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 25),
+        ),
         backgroundColor: Colors.black,
         centerTitle: true,
       ),
