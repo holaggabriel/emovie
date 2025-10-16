@@ -19,7 +19,7 @@ class MyAboutDialog extends StatelessWidget {
       ),
       content: GestureDetector(
         onTap: () async {
-          await customLaunchUrl('https://github.com/holaggabriel');
+          await customLaunchUrl('https://github.com/holaggabriel/emovie');
         },
         child: RichText(
           text: TextSpan(
