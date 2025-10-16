@@ -1,3 +1,4 @@
+import 'package:emovie/models/movie_genre_model.dart';
 import 'package:emovie/utils/debug_print.dart';
 import 'package:emovie/screens/widgets/shimmer_text.dart';
 import 'package:emovie/utils/movie_filter.dart';
@@ -28,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<MovieModel> upcomingMovies = [];
   List<MovieModel> trendingMovies = [];
   List<MovieModel> recommendedMovies = [];
+  List<MovieGenreModel> movieGenres = [];
 
   final MovieService _movieService = MovieService();
   final ConnectivityService _connectivityService = ConnectivityService();
@@ -52,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Cargar películas según el estado de conexión
     await _loadUpcomingMovies();
     await _loadTrendingMovies();
+    await _loadMovieGenres();
   }
 
   void _loadFilters() {
@@ -131,6 +134,38 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _loadMovieGenres() async {
+  final box = Hive.box<MovieGenreModel>('movieGenres');
+
+  if (isOffline) {
+    // Cargar desde Hive si no hay conexión
+    movieGenres = box.values.toList();
+    printInDebugMode('📦 Géneros cargados desde Hive: ${movieGenres.length}');
+    setState(() {});
+    return;
+  }
+
+  try {
+    printInDebugMode('Intentando obtener géneros desde la API...');
+    final genres = await _movieService.getMovieGenres();
+
+    // Limpiar box y guardar los nuevos géneros
+    await box.clear();
+    await box.addAll(genres);
+
+    movieGenres = genres;
+    printInDebugMode('✅ Géneros cargados desde API: ${genres.length}');
+  } catch (e) {
+    printInDebugMode('❌ Error al obtener géneros desde API: $e');
+
+    // Si falla, cargar desde Hive
+    movieGenres = box.values.toList();
+    printInDebugMode('📦 Géneros cargados desde Hive: ${movieGenres.length}');
+  } finally {
+    setState(() {});
+  }
+}
+
   void _onFilterSelected(FilterModel filter) {
     setState(() {
       selectedFilter = filter;
@@ -138,21 +173,20 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-void _applyFilter(FilterModel? filter) {
-  if (filter == null) return;
+  void _applyFilter(FilterModel? filter) {
+    if (filter == null) return;
 
-  setState(() => _isLoadingRecommended = true);
+    setState(() => _isLoadingRecommended = true);
 
-  recommendedMovies = filterMovies(trendingMovies, filter);
+    recommendedMovies = filterMovies(trendingMovies, filter);
 
-  setState(() => _isLoadingRecommended = false);
-}
-
+    setState(() => _isLoadingRecommended = false);
+  }
 
   void _navigateToDetails(MovieModel movie) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => MovieDetailsScreen(movie: movie)),
+      MaterialPageRoute(builder: (context) => MovieDetailsScreen(movie: movie, allGenres: movieGenres)),
     );
   }
 

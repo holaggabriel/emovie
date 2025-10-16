@@ -1,3 +1,4 @@
+import 'package:emovie/models/movie_genre_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
@@ -7,32 +8,16 @@ import 'widgets/trailer_button.dart';
 
 class MovieDetailsScreen extends StatelessWidget {
   final MovieModel movie;
+  final List<MovieGenreModel> allGenres;
 
-  const MovieDetailsScreen({super.key, required this.movie});
+  const MovieDetailsScreen({
+    super.key,
+    required this.movie,
+    required this.allGenres,
+  });
 
   String _getGenres(List<int> genreIds) {
-    const genreMap = {
-      28: 'Action',
-      12: 'Adventure',
-      16: 'Animation',
-      35: 'Comedy',
-      80: 'Crime',
-      99: 'Documentary',
-      18: 'Drama',
-      10751: 'Family',
-      14: 'Fantasy',
-      36: 'History',
-      27: 'Horror',
-      10402: 'Music',
-      9648: 'Mystery',
-      10749: 'Romance',
-      878: 'Sci-Fi',
-      10770: 'TV Movie',
-      53: 'Thriller',
-      10752: 'War',
-      37: 'Western',
-    };
-
+    final genreMap = {for (var g in allGenres) g.id: g.name};
     return genreIds.map((id) => genreMap[id] ?? 'Unknown').join(' · ');
   }
 
@@ -59,9 +44,8 @@ class MovieDetailsScreen extends StatelessWidget {
                 highlightColor: const Color(0xFF2A2A2A),
                 child: Container(color: const Color(0xFF2A2A2A)),
               ),
-              errorWidget: (context, url, error) => Container(
-                color: Colors.grey[800]
-              ),
+              errorWidget: (context, url, error) =>
+                  Container(color: Colors.grey[800]),
             ),
           ),
 
@@ -134,14 +118,18 @@ class MovieDetailsScreen extends StatelessWidget {
                         children: [
                           Tag(
                             text: releaseYear,
-                            backgroundColor: Colors.white.withValues(alpha: 0.8),
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.8,
+                            ),
                             fontWeight: FontWeight.w400,
                             textColor: Colors.black,
                           ),
                           const SizedBox(width: 8),
                           Tag(
                             text: language,
-                            backgroundColor: Colors.white.withValues(alpha: 0.8),
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.8,
+                            ),
                             textColor: Colors.black,
                           ),
                           const SizedBox(width: 8),

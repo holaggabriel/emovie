@@ -1,4 +1,5 @@
 import 'package:emovie/config/config.dart';
+import 'package:emovie/models/movie_genre_model.dart';
 import 'package:emovie/models/movie_model.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -18,10 +19,12 @@ void main() async {
 
   // Registrar adapter de MovieModel
   Hive.registerAdapter(MovieModelAdapter());
+  Hive.registerAdapter(MovieGenreModelAdapter()); 
 
   // Abrir boxes
   await Hive.openBox<MovieModel>('upcomingMovies');
   await Hive.openBox<MovieModel>('trendingMovies');
+  await Hive.openBox<MovieGenreModel>('movieGenres');
 
   runApp(const MyApp());
 }

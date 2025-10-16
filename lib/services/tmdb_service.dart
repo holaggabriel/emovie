@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:emovie/config/config.dart';
+import 'package:emovie/models/movie_genre_model.dart';
 import 'package:http/http.dart' as http;
 import '../models/movie_model.dart';
 
@@ -28,12 +29,17 @@ class MovieService {
       final List results = data['results'];
       return results.map((movie) => MovieModel.fromJson(movie)).toList();
     } else {
-      throw Exception('Error al cargar películas trending: ${response.statusCode}');
+      throw Exception(
+        'Error al cargar películas trending: ${response.statusCode}',
+      );
     }
   }
 
   /// Obtener próximos estrenos (upcoming)
-  Future<List<MovieModel>> getUpcomingMovies({String? language, int page = 1}) async {
+  Future<List<MovieModel>> getUpcomingMovies({
+    String? language,
+    int page = 1,
+  }) async {
     final lang = language ?? defaultLanguage;
     final url = Uri.parse('$_baseUrl/movie/upcoming?language=$lang&page=$page');
 
@@ -50,7 +56,31 @@ class MovieService {
       final List results = data['results'];
       return results.map((movie) => MovieModel.fromJson(movie)).toList();
     } else {
-      throw Exception('Error al cargar próximos estrenos: ${response.statusCode}');
+      throw Exception(
+        'Error al cargar próximos estrenos: ${response.statusCode}',
+      );
+    }
+  }
+
+  /// Obtener lista de géneros de películas
+  Future<List<MovieGenreModel>> getMovieGenres({String? language}) async {
+    final lang = language ?? defaultLanguage;
+    final url = Uri.parse('$_baseUrl/genre/movie/list?language=$lang');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'accept': 'application/json',
+        'Authorization': 'Bearer $_bearerToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final List genres = data['genres'];
+      return genres.map((g) => MovieGenreModel.fromJson(g)).toList();
+    } else {
+      throw Exception('Error al cargar géneros: ${response.statusCode}');
     }
   }
 }
