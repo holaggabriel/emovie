@@ -2,6 +2,7 @@ import 'package:emovie/models/filter_model.dart';
 import 'package:emovie/models/movie_genre_model.dart';
 import 'package:emovie/models/movie_model.dart';
 import 'package:emovie/providers/providers.dart';
+import 'package:emovie/screens/home_screen/dialogs/my_about_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:emovie/utils/debug_print.dart';
@@ -66,7 +67,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: GestureDetector(
-          // Si ya se preciona mientras está refrescando, no hacer nada
           onTap: isRefreshing ? null : _refreshData,
           child: isRefreshing
               ? const ShimmerText(
@@ -85,7 +85,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         backgroundColor: Colors.black,
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline, color: Colors.white38),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => const MyAboutDialog(),
+              );
+            },
+          ),
+        ],
       ),
+
       backgroundColor: Colors.black45,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
