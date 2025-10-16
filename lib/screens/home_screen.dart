@@ -255,73 +255,60 @@ class _HomeScreenState extends State<HomeScreen> {
               onRefresh: _onRefresh,
               color: Colors.white,
               backgroundColor: Colors.black,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(left: 16, right: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(),
-                    SectionTitle('Próximos estrenos'),
-                    _isLoadingUpcoming
-                        ? const ShimmerText(
-                            text: "Cargando películas próximas...",
-                          )
-                        : upcomingMovies.isEmpty
-                        ? const Text(
-                            'No hay próximos estrenos disponibles.',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                            ),
-                          )
-                        : MovieListHorizontal(
-                            movies: upcomingMovies,
-                            onMovieTap: _navigateToDetails,
-                          ),
-                    const SizedBox(height: 16),
-                    SectionTitle('Tendencias'),
-                    _isLoadingTrending
-                        ? const ShimmerText(
-                            text: "Cargando películas en tendencia...",
-                          )
-                        : trendingMovies.isEmpty
-                        ? const Text(
-                            'No hay películas en tendencia disponibles.',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                            ),
-                          )
-                        : MovieListHorizontal(
-                            movies: trendingMovies,
-                            onMovieTap: _navigateToDetails,
-                          ),
-                    const SizedBox(height: 16),
-                    SectionTitle('Recomendados para ti'),
-                    FilterSelector(
-                      filters: filters,
-                      onFilterSelected: _onFilterSelected,
-                      selectedFilter: selectedFilter,
-                    ),
-                    const SizedBox(height: 16),
-                    _isLoadingRecommended || _isLoadingTrending
-                        ? const ShimmerText(
-                            text: "Cargando películas recomendadas...",
-                          )
-                        : recommendedMovies.isEmpty
-                        ? const Text(
-                            'No hay recomendaciones disponibles.',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                            ),
-                          )
-                        : MovieGridLimited(
-                            movies: recommendedMovies,
-                            onMovieTap: _navigateToDetails,
-                          ),
-                  ],
-                ),
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  SectionTitle('Próximos estrenos'),
+                  _isLoadingUpcoming
+                      ? const ShimmerText(
+                          text: "Cargando películas próximas...",
+                        )
+                      : upcomingMovies.isEmpty
+                      ? const Text(
+                          'No hay próximos estrenos disponibles.',
+                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                        )
+                      : MovieListHorizontal(
+                          movies: upcomingMovies,
+                          onMovieTap: _navigateToDetails,
+                        ),
+                  const SizedBox(height: 16),
+                  SectionTitle('Tendencias'),
+                  _isLoadingTrending
+                      ? const ShimmerText(
+                          text: "Cargando películas en tendencia...",
+                        )
+                      : trendingMovies.isEmpty
+                      ? const Text(
+                          'No hay películas en tendencia disponibles.',
+                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                        )
+                      : MovieListHorizontal(
+                          movies: trendingMovies,
+                          onMovieTap: _navigateToDetails,
+                        ),
+                  const SizedBox(height: 16),
+                  SectionTitle('Recomendados para ti'),
+                  FilterSelector(
+                    filters: filters,
+                    onFilterSelected: _onFilterSelected,
+                    selectedFilter: selectedFilter,
+                  ),
+                  const SizedBox(height: 16),
+                  _isLoadingRecommended || _isLoadingTrending
+                      ? const ShimmerText(
+                          text: "Cargando películas recomendadas...",
+                        )
+                      : recommendedMovies.isEmpty
+                      ? const Text(
+                          'No hay recomendaciones disponibles.',
+                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                        )
+                      : MovieGridLimited(
+                          movies: recommendedMovies,
+                          onMovieTap: _navigateToDetails,
+                        ),
+                ],
               ),
             ),
           ),
