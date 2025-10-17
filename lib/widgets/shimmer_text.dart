@@ -16,7 +16,7 @@ class ShimmerText extends StatelessWidget {
     this.baseColor = Colors.white70,
     this.highlightColor = Colors.white,
     this.fontWeight = FontWeight.w500,
-    this.textAlign = TextAlign.center,
+    this.textAlign = TextAlign.left,
   });
 
   @override
