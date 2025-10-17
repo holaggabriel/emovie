@@ -73,20 +73,6 @@ class MovieDetailsScreen extends StatelessWidget {
             ),
           ),
 
-          /// Botón de retroceso
-          Positioned(
-            top: 35,
-            left: 24,
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: const Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-                size: 28,
-              ),
-            ),
-          ),
-
           /// Contenedor inferior con la información
           Align(
             alignment: Alignment.bottomCenter,
@@ -108,7 +94,12 @@ class MovieDetailsScreen extends StatelessWidget {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.only(
+                  left: 24.0,
+                  right: 24.0,
+                  top: 24.0,
+                  bottom: 0.0,
+                ),
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -182,9 +173,24 @@ class MovieDetailsScreen extends StatelessWidget {
                           letterSpacing: 0.25,
                         ),
                       ),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
+              ),
+            ),
+          ),
+
+          /// Botón de retroceso
+          Positioned(
+            top: 35,
+            left: 24,
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: const Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+                size: 28,
               ),
             ),
           ),
