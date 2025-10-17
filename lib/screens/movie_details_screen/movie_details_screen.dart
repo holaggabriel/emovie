@@ -173,7 +173,7 @@ class MovieDetailsScreen extends StatelessWidget {
                           letterSpacing: 0.25,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
