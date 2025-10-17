@@ -34,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     );
                   },
               transitionDuration: const Duration(
-                milliseconds: 200,
+                milliseconds: 300,
               ), // duración de la animación
             ),
           );
