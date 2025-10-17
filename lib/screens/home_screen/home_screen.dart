@@ -274,6 +274,7 @@ class EmptyMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       message,
+      textAlign: TextAlign.left,
       style: const TextStyle(color: Colors.white70, fontSize: 14),
     );
   }
